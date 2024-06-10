@@ -59,7 +59,7 @@ def view_data_sqlite(database):
     database.flush_table()
 
 if __name__ == "__main__":
-    file = "/Users/sjituri/Downloads/BandhanbyTamalBandyopadhyay.md"
+    file = "file"
     # process_file(file)
     database = DatabaseHandler("book-highlights.db")
     database.connect()
