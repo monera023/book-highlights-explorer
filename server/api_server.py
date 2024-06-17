@@ -1,13 +1,16 @@
 import shutil
 import os
+from typing import Optional
 
-from fastapi import FastAPI, File, UploadFile, Form, Response
+from fastapi import FastAPI, File, UploadFile, Form, Query
 
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
 
 app = FastAPI()
 
 UPLOADED_FILE_DIR = "uploadFiles"
+
+highlights_processor = HighLightsFileProcessor()
 
 @app.post("/v1/uploadHighlights")
 async def upload_highlights(file: UploadFile = File(...),
@@ -23,9 +26,9 @@ async def upload_highlights(file: UploadFile = File(...),
     with open(uploaded_file_location, "r", encoding="utf-8") as f:
         file_content = f.read()
 
-    highlights_data = HighLightsFileProcessor.parse_highlights_from_file(file_content)
+    highlights_data = highlights_processor.parse_highlights_from_file(file_content)
     print(f"Parsed highlights.. got count {len(highlights_data)}")
-    HighLightsFileProcessor.store_highlights(HighlightsMetadata(highlights_data, author, book_name, year))
+    highlights_processor.store_highlights(HighlightsMetadata(highlights_data, author, book_name, year))
     print(f"Stored highlights in database..")
 
     if os.path.exists(uploaded_file_location):
@@ -40,8 +43,15 @@ async def upload_highlights(file: UploadFile = File(...),
 
 @app.get("/v1/fetchHighlights")
 async def fetch_highlights():
-    highlights = HighLightsFileProcessor.fetch_highlights()
+    highlights = highlights_processor.fetch_highlights()
     return highlights
+
+
+@app.get('/v1/searchHighlights')
+async def search(query: Optional[str] = Query(None, description="Search terms")):
+    if query:
+        return highlights_processor.search_highlights(query)
+
 
 if __name__ == "__main__":
     import uvicorn
