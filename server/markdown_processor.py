@@ -1,6 +1,5 @@
 import markdown
 from bs4 import BeautifulSoup
-
 from server.database_handler import DatabaseHandler
 
 
@@ -52,7 +51,8 @@ class HighLightsFileProcessor:
         return highlights
 
     def search_highlights(self, query_term):
-        search_results = self.database.fts_query(query_term)
+        response = self.database.fts_query(query_term)
+        search_results = [row[0] for row in response]
         return search_results
 
 
