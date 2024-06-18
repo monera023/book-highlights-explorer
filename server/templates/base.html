@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <style>
+    /* css */
+    ul {
+      list-style-type: circle;
+      border: 2px solid blue;
+      background-color: lightblue;
+    }
+    li {
+      margin: 5px;
+      background-color: lightyellow;
+    }
+  </style>
+</head>
+<body>
+<header>
+  Book Highlights Explorer
+</header>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <!-- Add footer content -->
+</footer>
+</body>
+</html>

@@ -2,15 +2,23 @@ import shutil
 import os
 from typing import Optional
 
-from fastapi import FastAPI, File, UploadFile, Form, Query
+from fastapi import FastAPI, File, UploadFile, Form, Query, Request
+from fastapi.templating import Jinja2Templates
 
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 UPLOADED_FILE_DIR = "uploadFiles"
 
 highlights_processor = HighLightsFileProcessor()
+
+
+@app.get("/")
+async def home(request: Request):
+    return templates.TemplateResponse("upload.html", {"request": request, "title": "Book Highlights Explorer", "heading": "Highlights Explorer", "content": "Explore highlight of your books using search and explore options."})
+
 
 @app.post("/v1/uploadHighlights")
 async def upload_highlights(file: UploadFile = File(...),
@@ -42,15 +50,16 @@ async def upload_highlights(file: UploadFile = File(...),
 
 
 @app.get("/v1/fetchHighlights")
-async def fetch_highlights():
+async def fetch_highlights(request: Request):
     highlights = highlights_processor.fetch_highlights()
-    return highlights
+    return templates.TemplateResponse("highlights.html", {"request": request, "highlights": highlights})
 
 
 @app.get('/v1/searchHighlights')
-async def search(query: Optional[str] = Query(None, description="Search terms")):
-    if query:
-        return highlights_processor.search_highlights(query)
+async def search(request: Request, query: Optional[str] = Query(None, description="Search terms")):
+    search_results = highlights_processor.search_highlights(query) if query else []
+    print(f"Got response {len(search_results)}")
+    return templates.TemplateResponse("search.html", {"request": request, "search_results": search_results})
 
 
 if __name__ == "__main__":

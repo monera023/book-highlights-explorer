@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %} Upload Highlights {% endblock %}
+
+{% block content %}
+<h1> Upload Highlights </h1>
+<form action="/v1/uploadHighlights" method="post" enctype="multipart/form-data">
+  <label for="file"> Select a file:</label>
+  <input type="file" name="file" id="file" required><br>
+
+  <label for="book_name">Book Name: </label>
+  <input type="text" name="book_name" id="book_name" required><br>
+
+  <label for="author">Author:</label>
+  <input type="text" name="author" id="author" required><br>
+
+  <label for="year">Year:</label>
+  <input type="text" name="year" id="year" required><br>
+
+  <input type="submit" value="Upload">
+</form>
+{% endblock %}

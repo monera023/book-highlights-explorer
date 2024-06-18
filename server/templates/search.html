@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title%} Search Highlights {% endblock %}
+
+{% block content %}
+<h1>Search Highlights</h1>
+<form action="/v1/searchHighlights" method="get">
+  <input type="text" name="query" placeholder="Search terms">
+  <input type="submit" value="Search">
+</form>
+
+{% if search_results %}
+<h2>Search Results </h2>
+<ul>
+  {% for result in search_results %}
+  <li>{{ result|safe }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

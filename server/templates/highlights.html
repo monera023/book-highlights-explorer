@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Highlights {% endblock %}
+
+{% block content %}
+<h1>Highlights</h1>
+<ul>
+  {% for highlight in highlights %}
+  <li>{{ highlight }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
