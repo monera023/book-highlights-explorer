@@ -5,12 +5,12 @@ from typing import Optional
 from fastapi import FastAPI, File, UploadFile, Form, Query, Request
 from fastapi.templating import Jinja2Templates
 
+from server.constants import AppConstants
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-UPLOADED_FILE_DIR = "uploadFiles"
 
 highlights_processor = HighLightsFileProcessor()
 
@@ -25,7 +25,7 @@ async def upload_highlights(file: UploadFile = File(...),
                             book_name: str = Form(...),
                             author: str = Form(...),
                             year: str = Form(...)):
-    uploaded_file_location = f"{UPLOADED_FILE_DIR}/{file.filename}"
+    uploaded_file_location = f"{AppConstants.UPLOADED_FILE_DIR}/{file.filename}"
     print(f"Saving file .. {file.filename}")
     with open(uploaded_file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)

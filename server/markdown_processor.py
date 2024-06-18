@@ -1,6 +1,5 @@
 import markdown
 from bs4 import BeautifulSoup
-
 from server.database_handler import DatabaseHandler
 
 
