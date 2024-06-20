@@ -7,7 +7,7 @@ class DatabaseHandler(object):
     HIGHLIGHTS_FTS = "highlights_fts"
     INSERT_QUERY = f"INSERT INTO {TABLE_BOOK_HIGHLIGHTS} (book_name, author, year, highlight) VALUES (?, ?, ?, ?)"
     SELECT_COLUMNS = "book_name, author, year, highlight"
-    FTS_INSERT_QUERY = f"INSERT INTO {HIGHLIGHTS_FTS} (highlight) VALUES (?)"
+    FTS_INSERT_QUERY = f"INSERT INTO {HIGHLIGHTS_FTS} (highlight, book_name) VALUES (?, ?)"
 
     def __init__(self, db_name):
         self.db_name = db_name
@@ -57,7 +57,7 @@ class DatabaseHandler(object):
         cursor = self.conn.cursor()
         try:
             create_fts_table_query = '''
-            CREATE VIRTUAL TABLE highlights_fts USING fts5(highlight, tokenize = 'porter ascii', prefix=3);
+            CREATE VIRTUAL TABLE highlights_fts USING fts5(highlight, book_name, tokenize = 'porter ascii', prefix=3);
             '''
             cursor.execute(create_fts_table_query)
             self.conn.commit()
@@ -116,7 +116,7 @@ class DatabaseHandler(object):
 
     def fts_query(self, match_keyword):
         cursor = self.conn.cursor()
-        fts_match_query = f"SELECT highlight(highlights_fts,0, '<b>', '</b>') highlight FROM {self.HIGHLIGHTS_FTS} WHERE {self.HIGHLIGHTS_FTS} MATCH '{match_keyword}'"
+        fts_match_query = f"SELECT book_name, highlight(highlights_fts,0, '<b>', '</b>') highlight FROM {self.HIGHLIGHTS_FTS} WHERE {self.HIGHLIGHTS_FTS} MATCH '{match_keyword}'"
         cursor.execute(fts_match_query)
         rows = cursor.fetchall()
         cursor.close()

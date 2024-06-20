@@ -1,6 +1,6 @@
 import shutil
 import os
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import FastAPI, File, UploadFile, Form, Query, Request
 from fastapi.templating import Jinja2Templates
@@ -56,10 +56,15 @@ async def fetch_highlights(request: Request):
 
 
 @app.get('/v1/searchHighlights')
-async def search(request: Request, query: Optional[str] = Query(None, description="Search terms")):
+async def search(request: Request, query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
+    print(f"Got book query:: {books}")
+    all_books = ["Bandhan : The Making of a Bank", "Vikram Sarabhai a life"]
     search_results = highlights_processor.search_highlights(query) if query else []
-    print(f"Got response {len(search_results)}")
-    return templates.TemplateResponse("search.html", {"request": request, "search_results": search_results})
+
+    filtered_results = [row for row in search_results if row[0] in books] if books else search_results
+
+    print(f"Got response {len(filtered_results)}")
+    return templates.TemplateResponse("search.html", {"request": request, "search_results": filtered_results, "book_names": all_books})
 
 
 if __name__ == "__main__":

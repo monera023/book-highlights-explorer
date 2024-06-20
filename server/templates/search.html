@@ -6,6 +6,14 @@
 <h1>Search Highlights</h1>
 <form action="/v1/searchHighlights" method="get">
   <input type="text" name="query" placeholder="Search terms">
+
+  <label for="books">Select Books:</label>
+  <select name="books" id="books" multiple>
+    {% for book in book_names %}
+    <option value="{{ book }}">{{ book }}</option>
+    {% endfor %}
+  </select>
+
   <input type="submit" value="Search">
 </form>
 
