@@ -5,7 +5,7 @@ from typing import Optional, List
 from fastapi import FastAPI, File, UploadFile, Form, Query, Request
 from fastapi.templating import Jinja2Templates
 
-from server.constants import AppConstants
+from server.constants import AppConstants, DbConstants
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
 
 app = FastAPI()
@@ -13,6 +13,16 @@ templates = Jinja2Templates(directory="templates")
 
 
 highlights_processor = HighLightsFileProcessor()
+
+all_books = []
+
+
+@app.on_event("startup")
+async def app_init():
+    book_names_query = f"select distinct(book_name) from {DbConstants.TABLE_BOOK_HIGHLIGHTS}"
+    book_names = highlights_processor.database.run_raw_query(book_names_query)
+    all_books.extend([book[0] for book in book_names])
+    print(f"Got all book..{all_books}")
 
 
 @app.get("/")
@@ -58,7 +68,7 @@ async def fetch_highlights(request: Request):
 @app.get('/v1/searchHighlights')
 async def search(request: Request, query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
     print(f"Got book query:: {books}")
-    all_books = ["Bandhan : The Making of a Bank", "Vikram Sarabhai a life"]
+    # all_books = ["Bandhan : The Making of a Bank", "Vikram Sarabhai a life"]
     search_results = highlights_processor.search_highlights(query) if query else []
 
     filtered_results = [row for row in search_results if row[0] in books] if books else search_results
