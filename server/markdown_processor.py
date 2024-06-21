@@ -36,7 +36,7 @@ class HighLightsFileProcessor:
         for row in highlights_metadata.highlights:
             insert_data.append((highlights_metadata.book_name, highlights_metadata.author,
                                 highlights_metadata.year, row))
-            insert_data_fts.append((row,))
+            insert_data_fts.append((row, highlights_metadata.book_name))
 
         print(f"Storing highlights of size:: {len(insert_data)}..")
         batch_size = 30
@@ -52,7 +52,7 @@ class HighLightsFileProcessor:
 
     def search_highlights(self, query_term):
         response = self.database.fts_query(query_term)
-        search_results = [row[0] for row in response]
+        search_results = [(row[0], row[1]) for row in response]
         return search_results
 
 
