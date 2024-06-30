@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 
 from server.constants import AppConstants, DbConstants
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
+from server.utils import generate_tr_html_content
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -78,29 +79,21 @@ async def fetch_highlights(request: Request):
     return templates.TemplateResponse("highlights.html", {"request": request, "highlights": highlights})
 
 
+@app.get('/v1/search')
+async def search_template(request: Request):
+    return templates.TemplateResponse("search_htmx.html", {"request": request})
+
+
 @app.get('/v1/searchHighlights')
-async def search(request: Request, query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
-    print(f"Got book query:: {books}")
-    search_results = highlights_processor.search_highlights(query) if query else []
-
-    filtered_results = [row for row in search_results if row[0] in books] if books else search_results
-
-    print(f"Got response {len(filtered_results)}")
-    return templates.TemplateResponse("search_htmx.html", {"request": request, "search_results": filtered_results, "book_names": all_books})
-
-
-@app.get('/v3/searchHighlights')
 async def search(query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
     print(f"Got book query:: {books}")
     search_results = highlights_processor.search_highlights(query) if query else []
 
     filtered_results = [row for row in search_results if row[0] in books] if books else search_results
-    html_content = "".join(
-        f"<tr><td>{row[0]}</td> <td>{row[1]}</td></tr>"
-        for row in filtered_results
-    )
-
     print(f"Got response {len(filtered_results)}")
+
+    html_content = generate_tr_html_content(filtered_results)
+
     return HTMLResponse(content=html_content)
 
 
