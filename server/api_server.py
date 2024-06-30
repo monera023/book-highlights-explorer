@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI, File, UploadFile, Form, Query, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, FileResponse
 
 from server.constants import AppConstants, DbConstants
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
@@ -32,6 +33,10 @@ async def app_init():
     all_books.extend([book[0] for book in book_names])
     print(f"Got all book..{all_books}")
 
+
+@app.get("/v1/htmx.min.js")
+async def server_htmx_js():
+    return FileResponse("templates/htmx.min.js", media_type="application/javascript")
 
 @app.get("/")
 async def home(request: Request):
@@ -81,7 +86,23 @@ async def search(request: Request, query: Optional[str] = Query(None, descriptio
     filtered_results = [row for row in search_results if row[0] in books] if books else search_results
 
     print(f"Got response {len(filtered_results)}")
-    return templates.TemplateResponse("search.html", {"request": request, "search_results": filtered_results, "book_names": all_books})
+    return templates.TemplateResponse("search_htmx.html", {"request": request, "search_results": filtered_results, "book_names": all_books})
+
+
+@app.get('/v3/searchHighlights')
+async def search(query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
+    print(f"Got book query:: {books}")
+    search_results = highlights_processor.search_highlights(query) if query else []
+
+    filtered_results = [row for row in search_results if row[0] in books] if books else search_results
+    html_content = "".join(
+        f"<tr><td>{row[0]}</td> <td>{row[1]}</td></tr>"
+        for row in filtered_results
+    )
+
+    print(f"Got response {len(filtered_results)}")
+    return HTMLResponse(content=html_content)
+
 
 @app.post("/v2/uploadHighlights")
 async def upload_highlights_v2(file: UploadFile = File(...),
