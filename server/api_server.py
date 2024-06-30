@@ -5,9 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI, File, UploadFile, Form, Query, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, FileResponse
 
 from server.constants import AppConstants, DbConstants
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
+from server.utils import generate_tr_html_content
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -32,6 +34,10 @@ async def app_init():
     all_books.extend([book[0] for book in book_names])
     print(f"Got all book..{all_books}")
 
+
+@app.get("/v1/htmx.min.js")
+async def server_htmx_js():
+    return FileResponse("templates/htmx.min.js", media_type="application/javascript")
 
 @app.get("/")
 async def home(request: Request):
@@ -73,15 +79,23 @@ async def fetch_highlights(request: Request):
     return templates.TemplateResponse("highlights.html", {"request": request, "highlights": highlights})
 
 
+@app.get('/v1/search')
+async def search_template(request: Request):
+    return templates.TemplateResponse("search_htmx.html", {"request": request})
+
+
 @app.get('/v1/searchHighlights')
-async def search(request: Request, query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
+async def search(query: Optional[str] = Query(None, description="Search terms"), books: Optional[List[str]] = Query(None, description="Selected books")):
     print(f"Got book query:: {books}")
     search_results = highlights_processor.search_highlights(query) if query else []
 
     filtered_results = [row for row in search_results if row[0] in books] if books else search_results
-
     print(f"Got response {len(filtered_results)}")
-    return templates.TemplateResponse("search.html", {"request": request, "search_results": filtered_results, "book_names": all_books})
+
+    html_content = generate_tr_html_content(filtered_results)
+
+    return HTMLResponse(content=html_content)
+
 
 @app.post("/v2/uploadHighlights")
 async def upload_highlights_v2(file: UploadFile = File(...),

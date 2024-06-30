@@ -116,7 +116,8 @@ class DatabaseHandler(object):
 
     def fts_query(self, match_keyword):
         cursor = self.conn.cursor()
-        fts_match_query = f"SELECT book_name, highlight(highlights_fts,0, '<b>', '</b>') highlight FROM {self.HIGHLIGHTS_FTS} WHERE {self.HIGHLIGHTS_FTS} MATCH '{match_keyword}'"
+        prefix_match_keyword = match_keyword + '*'
+        fts_match_query = f"SELECT book_name, highlight(highlights_fts,0, '<b>', '</b>') highlight FROM {self.HIGHLIGHTS_FTS} WHERE {self.HIGHLIGHTS_FTS} MATCH '{prefix_match_keyword}'"
         cursor.execute(fts_match_query)
         rows = cursor.fetchall()
         cursor.close()

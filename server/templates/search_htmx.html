@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title%} Search Highlights {% endblock %}
+
+{% block content %}
+<h3>
+  Search Book Highlights
+  <span class="htmx-indicator">
+    Searching...
+   </span>
+</h3>
+<input class="form-control" type="search"
+       name="query" placeholder="Begin Typing To Search Highlights..."
+       hx-get="/v1/searchHighlights"
+       hx-trigger="input changed delay:500ms, search"
+       hx-target="#search-results"
+       hx-indicator=".htmx-indicator">
+
+<table class="table">
+  <thead>
+  <tr>
+    <th>Book Name</th>
+    <th>Highlight</th>
+  </tr>
+  </thead>
+  <tbody id="search-results">
+  </tbody>
+</table>
+{% endblock %}
