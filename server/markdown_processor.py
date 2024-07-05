@@ -1,6 +1,9 @@
 import markdown
+import pandas as pd
 from bs4 import BeautifulSoup
 from server.database_handler import DatabaseHandler
+from server.services.semantic_search_service import SemanticSearch
+from server.utils import append_book_name
 
 
 class HighlightsMetadata:
@@ -14,6 +17,7 @@ class HighlightsMetadata:
 class HighLightsFileProcessor:
     def __init__(self):
         self.database = DatabaseHandler("book-highlights.db")
+        self.semantic_search_svc = SemanticSearch()
 
     def get_call(self):
         pass
@@ -45,6 +49,12 @@ class HighLightsFileProcessor:
             self.database.insert_data(insert_data[i: i + batch_size])
             self.database.insert_data_fts(insert_data_fts[i: i + batch_size])
         print(f"Done inserts...")
+        dataframe = pd.DataFrame(highlights_metadata.highlights, columns=['highlight'])
+        dataframe['highlight'] = dataframe['highlight'].apply(append_book_name, book_name=highlights_metadata.book_name)
+        dataframe['embedding'] = dataframe['highlight'].apply(self.semantic_search_svc.generate_embedding)
+        print(f"Indexing highlights embeddings to db..")
+        self.semantic_search_svc.index(dataframe, {"book_name": highlights_metadata.book_name})
+        print(f"Indexing of embeddings done..")
 
     def fetch_highlights(self):
         highlights = self.database.get_data()
@@ -53,6 +63,11 @@ class HighLightsFileProcessor:
     def search_highlights(self, query_term):
         response = self.database.fts_query(query_term)
         search_results = [(row[0], row[1]) for row in response]
+
+        semantic_result = self.semantic_search_svc.query(query_term)
+        for index, row in enumerate(semantic_result['documents'][0]):
+            search_results.append((semantic_result['metadatas'][0][index]['book_name'], semantic_result['documents'][0][index]))
+
         return search_results
 
 
