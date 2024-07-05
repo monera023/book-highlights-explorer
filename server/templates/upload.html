@@ -4,7 +4,8 @@
 
 {% block content %}
 <h1> Upload Highlights </h1>
-<form action="/v1/uploadHighlights" method="post" enctype="multipart/form-data">
+
+<form id="form" hx-encoding="multipart/form-data" hx-post="/v1/uploadHighlights">
   <label for="file"> Select a file:</label>
   <input type="file" name="file" id="file" required><br>
 
@@ -17,6 +18,15 @@
   <label for="year">Year:</label>
   <input type="text" name="year" id="year" required><br>
 
-  <input type="submit" value="Upload">
+  <button>
+    Upload
+  </button>
+  <progress id="progress" value="0" max="100"></progress>
 </form>
+<script>
+  htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+    htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+  });
+</script>
+
 {% endblock %}
