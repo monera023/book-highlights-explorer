@@ -3,7 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from server.database_handler import DatabaseHandler
 from server.services.semantic_search_service import SemanticSearch
-from server.utils import append_book_name
+from server.utils import append_book_name, convert_to_highlight_entity
 
 
 class HighlightsMetadata:
@@ -58,7 +58,8 @@ class HighLightsFileProcessor:
 
     def fetch_highlights(self):
         highlights = self.database.get_data()
-        return highlights
+        formatted_output = convert_to_highlight_entity(highlights)
+        return formatted_output
 
     def search_highlights(self, query_term):
         response = self.database.fts_query(query_term)

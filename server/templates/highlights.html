@@ -3,10 +3,72 @@
 {% block title %}Highlights {% endblock %}
 
 {% block content %}
-<h1>Highlights</h1>
-<ul>
-  {% for highlight in highlights %}
-  <li>{{ highlight }}</li>
-  {% endfor %}
-</ul>
+
+<body class="bg-gray-100">
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4">Book List</h1>
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Highlight</th>
+      </tr>
+      </thead>
+      <tbody id="fetch-results" class="bg-white divide-y divide-gray-200" hx-get="/v1/fetch?offset=0&limit=10" hx-trigger="load" hx-swap="innerHTML">
+
+      </tbody>
+    </table>
+  </div>
+  <div id="pagination-controls" class="flex justify-center mt-4 space-x-2">
+    <button id="prev-page" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Previous</button>
+    <button id="next-page" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Next</button>
+  </div>
+  <div id="spinner" class="htmx-indicator">
+    <div class="flex justify-center items-center mt-4">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>
+  </div>
+</div>
+<script>
+
+  (function() {
+    let current_offset = 0;
+    const limit = 10;
+
+    function updatePaginationButtons() {
+      const nextPageButton = document.getElementById('next-page');
+      const prevPageButton = document.getElementById('prev-page');
+      prevPageButton.disabled = current_offset <= 0;
+    }
+
+    function fetchData(offset) {
+      const url = `/v1/fetch?offset=${offset}&limit=${limit}`;
+      htmx.ajax('GET', url, '#fetch-results');
+    }
+
+    document.addEventListener('htmx:afterOnLoad', function(event) {
+      if (event.detail.target.id === 'fetch-results') {
+        updatePaginationButtons();
+      }
+    });
+
+    document.getElementById('next-page').addEventListener('click', function() {
+      current_offset += limit;
+      fetchData(current_offset);
+      updatePaginationButtons();
+    });
+
+    document.getElementById('prev-page').addEventListener('click', function() {
+      if (current_offset > 0) {
+        current_offset -= limit;
+        fetchData(current_offset);
+        updatePaginationButtons();
+      }
+    });
+  })();
+
+</script>
 {% endblock %}
