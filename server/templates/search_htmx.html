@@ -3,27 +3,53 @@
 {% block title%} Search Highlights {% endblock %}
 
 {% block content %}
-<h3>
-  Search Book Highlights
-  <span class="htmx-indicator">
-    Searching...
-   </span>
-</h3>
-<input class="form-control" type="search"
-       name="query" placeholder="Begin Typing To Search Highlights..."
-       hx-get="/v1/searchHighlights"
-       hx-trigger="input changed delay:500ms, search"
-       hx-target="#search-results"
-       hx-indicator=".htmx-indicator">
 
-<table class="table">
-  <thead>
-  <tr>
-    <th>Book Name</th>
-    <th>Highlight</th>
-  </tr>
-  </thead>
-  <tbody id="search-results">
-  </tbody>
-</table>
+<body class="bg-gray-100 min-h-screen p-8">
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+  <div class="mb-6">
+    <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+      Search Book Highlights
+      <span class="htmx-indicator ml-3 text-sm font-normal text-gray-500 hidden">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Searching...
+                </span>
+    </h3>
+    <input class="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           type="search"
+           name="query"
+           placeholder="Begin Typing To Search Highlights..."
+           hx-get="/v1/searchHighlights"
+           hx-trigger="input changed delay:500ms, search"
+           hx-target="#search-results"
+           hx-indicator=".htmx-indicator">
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Book Name</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Highlight</th>
+      </tr>
+      </thead>
+      <tbody id="search-results" class="bg-white divide-y divide-gray-200">
+      <!-- Search results will be populated here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  htmx.on("htmx:afterRequest", function(evt) {
+    if (evt.detail.elt.getAttribute("name") === "query") {
+      const searchResults = document.getElementById("search-results");
+      if (searchResults.innerHTML.trim() === "") {
+        searchResults.innerHTML = '<tr><td colspan="2" class="px-6 py-4 text-center text-gray-500">No results found</td></tr>';
+      }
+    }
+  });
+</script>
 {% endblock %}

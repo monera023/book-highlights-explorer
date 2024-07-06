@@ -3,7 +3,10 @@ from server.constants import HighlightEntity
 
 def generate_tr_html_content(results):
     html_content = "".join(
-        f"<tr><td>{row[0]}</td> <td>{row[1]}</td></tr>"
+        f"<tr class='hover:bg-gray-50'>"
+        f"<td class='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{row[0]}</td>"
+        f"<td class='px-6 py-4 whitespace-normal text-sm text-gray-500'>{row[1]}</td>"
+        f"</tr>"
         for row in results
     )
     return html_content
