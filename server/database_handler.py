@@ -108,7 +108,7 @@ class DatabaseHandler(object):
     def get_data(self):
         cursor = self.conn.cursor()
 
-        select_all_query = f"SELECT {self.SELECT_COLUMNS} FROM {self.TABLE_BOOK_HIGHLIGHTS}"
+        select_all_query = f"SELECT {self.SELECT_COLUMNS} FROM {self.TABLE_BOOK_HIGHLIGHTS} order by id"
         cursor.execute(select_all_query)
         rows = cursor.fetchall()
         cursor.close()

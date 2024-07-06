@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 
 from server.constants import AppConstants, DbConstants
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
-from server.utils import generate_tr_html_content
+from server.utils import generate_tr_html_content, generate_fetch_highlights_tr_html_content
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -76,7 +76,15 @@ async def upload_highlights(file: UploadFile = File(...),
 @app.get("/v1/fetchHighlights")
 async def fetch_highlights(request: Request):
     highlights = highlights_processor.fetch_highlights()
-    return templates.TemplateResponse("highlights.html", {"request": request, "highlights": highlights})
+    return templates.TemplateResponse("highlights.html", {"request": request})
+
+@app.get("/v1/fetch")
+async def fetch(request: Request, offset: Optional[int] = Query(0, description="Offset to start results from"),
+                limit: Optional[int] = Query(0, description="Number of rows to return")):
+    highlights = highlights_processor.fetch_highlights()
+    print(len(highlights[offset:offset + limit]))
+    html_content = generate_fetch_highlights_tr_html_content(highlights[offset:offset + limit])
+    return HTMLResponse(content=html_content)
 
 
 @app.get('/v1/search')
