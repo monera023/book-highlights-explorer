@@ -3,7 +3,7 @@ import os
 from typing import Optional, List
 from fastapi.middleware.cors import CORSMiddleware
 
-from fastapi import FastAPI, File, UploadFile, Form, Query, Request
+from fastapi import FastAPI, File, UploadFile, Form, Query, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, FileResponse
 
@@ -50,7 +50,15 @@ async def upload_highlights(file: UploadFile = File(...),
                             author: str = Form(...),
                             year: str = Form(...)):
     uploaded_file_location = f"{AppConstants.UPLOADED_FILE_DIR}/{file.filename}"
-    print(f"Saving file .. {file.filename}")
+
+    if file.content_type not in AppConstants.SUPPORTED_MIME_TYPES:
+        raise HTTPException(
+            status_code=403,
+            detail=f"FileType not supported..",
+        )
+
+    print(f"Saving file .. {file.filename} and {file.content_type}")
+
     with open(uploaded_file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 

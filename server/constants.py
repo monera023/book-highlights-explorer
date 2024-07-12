@@ -7,6 +7,7 @@ class DbConstants:
 
 class AppConstants:
     UPLOADED_FILE_DIR = "uploadFiles"
+    SUPPORTED_MIME_TYPES = ["text/markdown"]
 
 class HighlightEntity(BaseModel):
     book_name: str
