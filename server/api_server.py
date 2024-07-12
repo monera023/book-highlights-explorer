@@ -41,6 +41,11 @@ async def server_htmx_js():
 
 @app.get("/")
 async def home(request: Request):
+    return templates.TemplateResponse("base.html", {"request": request, "title": "Book Highlights Explorer", "heading": "Highlights Explorer", "content": "Explore highlight of your books using search and explore options."})
+
+
+@app.get("/base")
+async def get_home(request: Request):
     return templates.TemplateResponse("upload.html", {"request": request, "title": "Book Highlights Explorer", "heading": "Highlights Explorer", "content": "Explore highlight of your books using search and explore options."})
 
 
@@ -83,7 +88,6 @@ async def upload_highlights(file: UploadFile = File(...),
 
 @app.get("/v1/fetchHighlights")
 async def fetch_highlights(request: Request):
-    highlights = highlights_processor.fetch_highlights()
     return templates.TemplateResponse("highlights.html", {"request": request})
 
 @app.get("/v1/fetch")

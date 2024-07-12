@@ -8,14 +8,42 @@
     /* css */
   </style>
 </head>
-<body>
+<body class="bg-gray-100">
+
+<nav class="bg-gray-600 p-4">
+  <div class="container mx-auto flex justify-between items-center">
+    <h1 class="text-white text-xl font-bold">Book Highlights</h1>
+    <ul class="flex space-x-4">
+      <li>
+        <button hx-get="/base" hx-target="#main-content" hx-swap="innerHTML" class="text-white hover:text-gray-200">
+          Upload File
+        </button>
+      </li>
+      <li>
+        <button hx-get="/v1/fetchHighlights" hx-target="#main-content" hx-swap="innerHTML" class="text-white hover:text-gray-200">
+          Fetch Highlights
+        </button>
+      </li>
+      <li>
+        <button hx-get="/v1/search" hx-target="#main-content" hx-swap="innerHTML" class="text-white hover:text-gray-200">
+          Search
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
 <!--<header>-->
 <!--  Book Highlights Explorer-->
 <!--</header>-->
 
-<main>
-  {% block content %}{% endblock %}
-</main>
+<div id="main-content" class="container mx-auto mt-8">
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+
 
 <footer>
   <!-- Add footer content -->
