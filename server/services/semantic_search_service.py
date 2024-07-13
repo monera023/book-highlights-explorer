@@ -9,9 +9,11 @@ class SemanticSearch:
 
     def index(self, dataframe, metadata={}):
         print(f"Indexing df of size={len(dataframe)}")
+        start_index = self.chroma_collection.count()
         for index, row in dataframe.iterrows():
+            start_index += 1
             self.chroma_collection.add(
-                ids=[str(index)],
+                ids=[str(start_index)],
                 embeddings=[row['embedding']],
                 documents=[row['highlight']],
                 metadatas=metadata
