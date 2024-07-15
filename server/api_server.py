@@ -7,7 +7,8 @@ from fastapi import FastAPI, File, UploadFile, Form, Query, Request, HTTPExcepti
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, FileResponse
 
-from server.constants import AppConstants, DbConstants
+from server.constants import AppConstants, DbConstants, IndexFolderRequest, BookModel
+from server.indexer_svc import Indexer
 from server.markdown_processor import HighLightsFileProcessor, HighlightsMetadata
 from server.utils import generate_tr_html_content, generate_fetch_highlights_tr_html_content
 
@@ -16,6 +17,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 highlights_processor = HighLightsFileProcessor()
+indexer_svc = Indexer()
 
 all_books = []
 
@@ -71,9 +73,10 @@ async def upload_highlights(file: UploadFile = File(...),
     with open(uploaded_file_location, "r", encoding="utf-8") as f:
         file_content = f.read()
 
-    highlights_data = highlights_processor.parse_highlights_from_file(file_content)
+    book_model: BookModel = highlights_processor.parse_highlights_from_file(file_content)
+    highlights_data = book_model.highlights
     print(f"Parsed highlights.. got count {len(highlights_data)}")
-    highlights_processor.store_highlights(HighlightsMetadata(highlights_data, author, book_name, year))
+    highlights_processor.store_highlights(HighlightsMetadata(highlights_data, author, book_name))
     print(f"Stored highlights in database..")
 
     if os.path.exists(uploaded_file_location):
@@ -91,12 +94,18 @@ async def fetch_highlights(request: Request):
     return templates.TemplateResponse("highlights.html", {"request": request})
 
 @app.get("/v1/fetch")
-async def fetch(request: Request, offset: Optional[int] = Query(0, description="Offset to start results from"),
+async def fetch(offset: Optional[int] = Query(0, description="Offset to start results from"),
                 limit: Optional[int] = Query(0, description="Number of rows to return")):
     highlights = highlights_processor.fetch_highlights()
     print(len(highlights[offset:offset + limit]))
     html_content = generate_fetch_highlights_tr_html_content(highlights[offset:offset + limit])
     return HTMLResponse(content=html_content)
+
+
+@app.post("/v1/indexFolder")
+async def index_highlights_folder(folder: IndexFolderRequest):
+    indexer_svc.index_folder(folder.folder_name)
+    return "Done..."
 
 
 @app.get('/v1/search')
@@ -131,9 +140,10 @@ async def upload_highlights_v2(file: UploadFile = File(...),
     with open(uploaded_file_location, "r", encoding="utf-8") as f:
         file_content = f.read()
 
-    highlights_data = highlights_processor.parse_highlights_from_file(file_content)
+    book: BookModel = highlights_processor.parse_highlights_from_file(file_content)
+    highlights_data = book.highlights
     print(f"Parsed highlights.. got count {len(highlights_data)}")
-    highlights_processor.store_highlights(HighlightsMetadata(highlights_data, author, book_name, year))
+    highlights_processor.store_highlights(HighlightsMetadata(highlights_data, author, book_name))
     print(f"Stored highlights in database..")
 
     if os.path.exists(uploaded_file_location):
