@@ -5,8 +5,8 @@ from sqlite3 import OperationalError
 class DatabaseHandler(object):
     TABLE_BOOK_HIGHLIGHTS = "book_highlights"
     HIGHLIGHTS_FTS = "highlights_fts"
-    INSERT_QUERY = f"INSERT INTO {TABLE_BOOK_HIGHLIGHTS} (book_name, author, year, highlight) VALUES (?, ?, ?, ?)"
-    SELECT_COLUMNS = "book_name, author, year, highlight"
+    INSERT_QUERY = f"INSERT INTO {TABLE_BOOK_HIGHLIGHTS} (book_name, author, highlight) VALUES (?, ?, ?)"
+    SELECT_COLUMNS = "book_name, author, highlight"
     FTS_INSERT_QUERY = f"INSERT INTO {HIGHLIGHTS_FTS} (highlight, book_name) VALUES (?, ?)"
 
     def __init__(self, db_name):
@@ -44,7 +44,6 @@ class DatabaseHandler(object):
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           book_name TEXT,
           author TEXT,
-          year TEXT,
           highlight TEXT
          )
         '''

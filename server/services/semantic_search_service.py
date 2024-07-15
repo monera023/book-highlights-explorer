@@ -1,21 +1,23 @@
 import ollama
 import chromadb
 
-
 class SemanticSearch:
     def __init__(self):
         client = chromadb.PersistentClient()
         self.chroma_collection = client.create_collection(name="book-highlights", get_or_create=True)
 
     def index(self, dataframe, metadata={}):
-        print(f"Indexing df of size={len(dataframe)}")
+        print(f"[Background_Thread work]..Indexing df of size={len(dataframe)}")
+        start_index = self.chroma_collection.count()
         for index, row in dataframe.iterrows():
+            start_index += 1
             self.chroma_collection.add(
-                ids=[str(index)],
+                ids=[str(start_index)],
                 embeddings=[row['embedding']],
                 documents=[row['highlight']],
                 metadatas=metadata
             )
+        print(f"[Background_Thread work].. SemanticSearch Indexing done..")
 
     def generate_embedding(self, sentence):
         response = ollama.embeddings(model="nomic-embed-text", prompt=sentence)

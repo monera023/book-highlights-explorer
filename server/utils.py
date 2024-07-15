@@ -34,5 +34,5 @@ def append_book_name(sentence, book_name):
 def convert_to_highlight_entity(db_rows):
     output = []
     for row in db_rows:
-        output.append(HighlightEntity(book_name=row[0], author=row[1], year=row[2], highlight=row[3]))
+        output.append(HighlightEntity(book_name=row[0], author=row[1], year="111", highlight=row[2]))
     return output
