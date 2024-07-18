@@ -104,7 +104,7 @@ async def fetch(offset: Optional[int] = Query(0, description="Offset to start re
 
 @app.post("/v1/indexFolder")
 async def index_highlights_folder(folder: IndexFolderRequest):
-    indexer_svc.index_folder(folder.folder_name)
+    indexer_svc.index_folder(folder.folder_name, all_books)
     return "Done..."
 
 
