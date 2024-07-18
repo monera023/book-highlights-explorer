@@ -94,11 +94,9 @@ async def fetch_highlights(request: Request):
     return templates.TemplateResponse("highlights.html", {"request": request})
 
 @app.get("/v1/fetch")
-async def fetch(offset: Optional[int] = Query(0, description="Offset to start results from"),
-                limit: Optional[int] = Query(0, description="Number of rows to return")):
+async def fetch():
     highlights = highlights_processor.fetch_highlights()
-    print(len(highlights[offset:offset + limit]))
-    html_content = generate_fetch_highlights_tr_html_content(highlights[offset:offset + limit])
+    html_content = generate_fetch_highlights_tr_html_content(highlights)
     return HTMLResponse(content=html_content)
 
 

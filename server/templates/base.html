@@ -12,7 +12,7 @@
 
 <nav class="bg-gray-600 p-4">
   <div class="container mx-auto flex justify-between items-center">
-    <h1 class="text-white text-xl font-bold">Book Highlights</h1>
+    <h1 class="text-white text-xl font-bold">Book Highlights Explorer</h1>
     <ul class="flex space-x-4">
       <li>
         <button hx-get="/base" hx-target="#main-content" hx-swap="innerHTML" class="text-white hover:text-gray-200">
@@ -21,7 +21,7 @@
       </li>
       <li>
         <button hx-get="/v1/fetchHighlights" hx-target="#main-content" hx-swap="innerHTML" class="text-white hover:text-gray-200">
-          Fetch Highlights
+          Highlights Feed
         </button>
       </li>
       <li>
@@ -33,12 +33,12 @@
   </div>
 </nav>
 
+
 <div id="main-content" class="container mx-auto mt-8">
   <main>
     {% block content %}{% endblock %}
   </main>
 </div>
-
 
 
 <footer>
