@@ -1,10 +1,11 @@
+import random
 from typing import List
 
 import markdown
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from server.constants import BookModel
+from server.constants import BookModel, AppConstants
 from server.database_handler import DatabaseHandler
 from server.services.semantic_search_service import SemanticSearch
 from server.utils import append_book_name, convert_to_highlight_entity
@@ -67,7 +68,9 @@ class HighLightsFileProcessor:
         semantic_search_thread.start()
 
     def fetch_highlights(self):
-        highlights = self.database.get_data()
+        total_count = self.database.count_query()[0]
+        feed_ids = [random.randint(0, total_count) for _ in range(AppConstants.FEED_LIMIT)]
+        highlights = self.database.get_data(feed_ids)
         formatted_output = convert_to_highlight_entity(highlights)
         return formatted_output
 
@@ -83,7 +86,7 @@ class HighLightsFileProcessor:
 
 
 def view_data_sqlite(database):
-    rows = database.get_data()
+    rows = database.get_data({})
     print(f"Got {len(rows)} rows...")
     for row in rows:
         print(row)

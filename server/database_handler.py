@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import OperationalError
+from typing import List
 
 
 class DatabaseHandler(object):
@@ -104,14 +105,23 @@ class DatabaseHandler(object):
         cursor.close()
         print(f"Dropped table..{table_name} from db")
 
-    def get_data(self):
+    def get_data(self, feed_ids: List[int]):
         cursor = self.conn.cursor()
-
-        select_all_query = f"SELECT {self.SELECT_COLUMNS} FROM {self.TABLE_BOOK_HIGHLIGHTS} order by id"
-        cursor.execute(select_all_query)
+        placeholders = ','.join('?' for _ in feed_ids)
+        select_all_query = f"SELECT {self.SELECT_COLUMNS} FROM {self.TABLE_BOOK_HIGHLIGHTS} WHERE id in ({placeholders})"
+        cursor.execute(select_all_query, feed_ids)
         rows = cursor.fetchall()
         cursor.close()
         return rows
+
+    def count_query(self):
+        cursor = self.conn.cursor()
+
+        count_query = f"select count(*) from {self.TABLE_BOOK_HIGHLIGHTS}"
+        cursor.execute(count_query)
+        output = cursor.fetchone()
+        print(output)
+        return output
 
     def fts_query(self, match_keyword):
         cursor = self.conn.cursor()
